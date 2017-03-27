@@ -1,3 +1,6 @@
+# Copyright (c) 2017 David Hirvonen, Ruslan Baratov
+# All rights reserved.
+
 cmake_minimum_required(VERSION 3.0)
 
 include("cmake/HunterGate.cmake")
@@ -33,25 +36,27 @@ list(APPEND BOOST_PBA_3RDPARTY_LIBS
 ###########
 
 set(boost_pba_srcs
-  portable_binary_archive.hpp
-  portable_binary_iarchive.cpp
-  portable_binary_iarchive.hpp
-  portable_binary_oarchive.cpp
-  portable_binary_oarchive.hpp
+  boost-pba/portable_binary_archive.hpp
+  boost-pba/portable_binary_iarchive.cpp
+  boost-pba/portable_binary_iarchive.hpp
+  boost-pba/portable_binary_oarchive.cpp
+  boost-pba/portable_binary_oarchive.hpp
   )
 
 add_library(boost-pba ${boost_pba_srcs})
 target_link_libraries(boost-pba PUBLIC ${BOOST_PBA_3RDPARTY_LIBS})
 target_include_directories(boost-pba PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>/../"
-  "$<INSTALL_INTERFACE:include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
   )
 
 ################
 ### Examples ###
 ################
 
-# TODO
+if(BOOST_PBA_BUILD_EXAMPLES)
+  add_executable(boost-pba-test examples/main.cpp)
+  target_link_libraries(boost-pba-test PUBLIC boost-pba ${BOOST_PBA_3RDPARTY_LIBS})
+endif()
 
 ###############
 ### Install ###
@@ -91,15 +96,13 @@ install(
     ARCHIVE DESTINATION "lib"
     RUNTIME DESTINATION "bin"
     INCLUDES DESTINATION "${include_install_dir}"
-)
+    )
 
 install(
-    FILES
-    portable_binary_archive.hpp
-    portable_binary_iarchive.hpp
-    portable_binary_oarchive.hpp
-    DESTINATION "${include_install_dir}/${PROJECT_NAME}"
-)
+  DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/boost-pba
+  DESTINATION "${include_install_dir}" 
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+  )  
 
 install(
   FILES "${project_config}" "${version_config}"
